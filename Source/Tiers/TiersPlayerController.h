@@ -12,6 +12,6 @@
 UCLASS()
 class TIERS_API ATiersPlayerController : public APlayerController
 {
-	GENERATED_BODY()
-	
+  GENERATED_BODY()
+  
 };

@@ -11,15 +11,15 @@
 // Sets default values
 ATiersPlayerPawn::ATiersPlayerPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+   // Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+  PrimaryActorTick.bCanEverTick = true;
 
 }
 
 // Called when the game starts or when spawned
 void ATiersPlayerPawn::BeginPlay()
 {
-	Super::BeginPlay();
+  Super::BeginPlay();
 
   // Desired initial position is focused on the bottom-center of the map, but if we can't find it,
   // we'll just start at the center-center.
@@ -38,7 +38,7 @@ void ATiersPlayerPawn::BeginPlay()
 // Called every frame
 void ATiersPlayerPawn::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+  Super::Tick(DeltaTime);
 
   // Pan is continuous when the mouse is in the panning area,
   // so we can't drive it off of mouse input events.
@@ -47,33 +47,33 @@ void ATiersPlayerPawn::Tick(float DeltaTime)
 
 void ATiersPlayerPawn::NotifyControllerChanged()
 {
-	Super::NotifyControllerChanged();
+  Super::NotifyControllerChanged();
 
-	// Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
+  // Add Input Mapping Context
+  if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+  {
+    if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+    {
+      Subsystem->AddMappingContext(DefaultMappingContext, 0);
+    }
+  }
 }
 
 // Called to bind functionality to input
 void ATiersPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+  Super::SetupPlayerInputComponent(PlayerInputComponent);
 
   // Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		// Zoom
-		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ATiersPlayerPawn::HandleZoom);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
+  if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+  {
+    // Zoom
+    EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ATiersPlayerPawn::HandleZoom);
+  }
+  else
+  {
+    UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+  }
 }
 
 void ATiersPlayerPawn::HandlePan(float DeltaTime)

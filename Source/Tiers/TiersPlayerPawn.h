@@ -14,22 +14,22 @@ struct FInputActionValue;
 UCLASS()
 class TIERS_API ATiersPlayerPawn : public APawn
 {
-	GENERATED_BODY()
+  GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
-	ATiersPlayerPawn();
+  // Sets default values for this pawn's properties
+  ATiersPlayerPawn();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+  // Called when the game starts or when spawned
+  virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:  
+  // Called every frame
+  virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+  // Called to bind functionality to input
+  virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
   virtual void NotifyControllerChanged() override;
 

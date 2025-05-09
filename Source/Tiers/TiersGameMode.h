@@ -12,8 +12,8 @@
 UCLASS()
 class TIERS_API ATiersGameMode : public AGameModeBase
 {
-	GENERATED_BODY()
-	
+  GENERATED_BODY()
+  
 public:
   int32 GetMapWidth() const { return MapWidth; }
   int32 GetMapHeight() const { return MapHeight; }
