@@ -11,19 +11,19 @@ class UStaticMeshComponent;
 UCLASS()
 class TIERS_API ATiersBuilding : public AActor
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ATiersBuilding();
+  GENERATED_BODY()
+  
+public:  
+  // Sets default values for this actor's properties
+  ATiersBuilding();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+  // Called when the game starts or when spawned
+  virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:  
+  // Called every frame
+  virtual void Tick(float DeltaTime) override;
 
 private:
   UPROPERTY(EditDefaultsOnly)
