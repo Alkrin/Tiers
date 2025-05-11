@@ -27,8 +27,8 @@ void ATiersPlayerPawn::BeginPlay()
   if (ATiersGameMode* GameMode = Cast<ATiersGameMode>(GetWorld()->GetAuthGameMode()))
   {
     // Every map tile is 100x100cm.  To get to the bottom edge, we only need half of that (50).
-    // The -5 puts us slightly inside the map bounds (assuming a non-degenerate map size).
-    StartPos.Y = -(GameMode->GetMapHeight() - 5) * 50;
+    // The -14 puts us slightly inside the map bounds (assuming a non-degenerate map size).
+    StartPos.Y = -(GameMode->GetMapHeight() - 14) * 50;
     // After that, we have to account for the initial altitude and 30deg camera angle.
     StartPos.Y -= StartPos.Z / FMath::Tan(PI/6);
   }
