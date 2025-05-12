@@ -3,6 +3,7 @@
 
 #include "TiersBuilding.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 
 // Sets default values
@@ -12,6 +13,13 @@ ATiersBuilding::ATiersBuilding()
   PrimaryActorTick.bCanEverTick = true;
 
   RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+
+  Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
+  // Should receive trace responses for our custom "Selectable" channel.
+  Collision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+  // Should block robots from walking onto it.
+  Collision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+  Collision->SetupAttachment(RootComponent);
 
   Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
   Mesh->SetupAttachment(RootComponent);

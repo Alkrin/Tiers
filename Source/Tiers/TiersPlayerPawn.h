@@ -6,9 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "TiersPlayerPawn.generated.h"
 
+class UInputAction;
 class UInputComponent;
 class UInputMappingContext;
-class UInputAction;
 struct FInputActionValue;
 
 UCLASS()
@@ -58,6 +58,13 @@ private:
   UPROPERTY(EditDefaultsOnly, Category="Input")
   UInputAction* ZoomAction;
 
+  UPROPERTY(EditDefaultsOnly, Category="Input")
+  UInputAction* SelectAction;
+
   void HandleZoom(const FInputActionValue& Value);
   void HandlePan(float DeltaTime);
+  void HandleSelect(const FInputActionValue& Value);
+
+  bool IsSelecting = false;
+  void UpdateDragSelection();
 };
