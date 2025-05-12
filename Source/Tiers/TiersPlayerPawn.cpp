@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "TiersGameMode.h"
+#include "TiersPlayerController.h"
 
 // Sets default values
 ATiersPlayerPawn::ATiersPlayerPawn()
@@ -43,6 +44,8 @@ void ATiersPlayerPawn::Tick(float DeltaTime)
   // Pan is continuous when the mouse is in the panning area,
   // so we can't drive it off of mouse input events.
   HandlePan(DeltaTime);
+
+  UpdateDragSelection();
 }
 
 void ATiersPlayerPawn::NotifyControllerChanged()
@@ -69,6 +72,8 @@ void ATiersPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
   {
     // Zoom
     EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ATiersPlayerPawn::HandleZoom);
+    // Select
+    EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &ATiersPlayerPawn::HandleSelect);
   }
   else
   {
@@ -78,6 +83,12 @@ void ATiersPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void ATiersPlayerPawn::HandlePan(float DeltaTime)
 {
+  // No pan during selection.
+  if (IsSelecting)
+  {
+    return;
+  }
+
   // If mouse is near the edges of the viewport, and the pawn is still in the permitted volume, pan!
   if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
   {
@@ -166,5 +177,33 @@ void ATiersPlayerPawn::HandleZoom(const FInputActionValue& Value)
     Location.Y -= DeltaY;
 
     SetActorLocation(Location);
+  }
+}
+
+void ATiersPlayerPawn::HandleSelect(const FInputActionValue& Value)
+{
+  IsSelecting = Value.Get<bool>();
+
+  if (ATiersPlayerController* PlayerController = Cast<ATiersPlayerController>(Controller))
+  {
+    if (IsSelecting)
+    {
+      PlayerController->BeginDragSelect();
+    }
+    else
+    {
+      PlayerController->EndDragSelect();
+    }
+  }
+}
+
+void ATiersPlayerPawn::UpdateDragSelection()
+{
+  if (IsSelecting)
+  {
+    if (ATiersPlayerController* PlayerController = Cast<ATiersPlayerController>(Controller))
+    {
+      PlayerController->UpdateDragSelection();
+    }
   }
 }

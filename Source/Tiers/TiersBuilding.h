@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TiersBuilding.generated.h"
 
+class UCapsuleComponent;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -26,6 +27,9 @@ public:
   virtual void Tick(float DeltaTime) override;
 
 private:
+  UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
+  UCapsuleComponent* Collision;
+
   UPROPERTY(EditDefaultsOnly)
   UStaticMeshComponent* Mesh;
 };

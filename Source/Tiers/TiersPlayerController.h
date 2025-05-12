@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "TiersPlayerController.generated.h"
 
+class UDragSelectorWidget;
+
 /**
  * 
  */
@@ -13,5 +15,23 @@ UCLASS()
 class TIERS_API ATiersPlayerController : public APlayerController
 {
   GENERATED_BODY()
+
+public:
+  void BeginDragSelect();
+  void UpdateDragSelection();
+  void EndDragSelect();
   
+protected:
+  // Called when the game starts or when spawned
+  virtual void BeginPlay() override;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Runtime")
+  TArray<AActor*> SelectedEntities;
+
+private:
+  UPROPERTY(EditDefaultsOnly, Category="UI")
+  TSubclassOf<UDragSelectorWidget> DragSelectorWidgetClass;
+  UDragSelectorWidget* DragSelectorWidget;
+
+  void InitializeDragSelectorUI();
 };
