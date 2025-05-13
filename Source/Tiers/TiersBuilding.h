@@ -18,13 +18,18 @@ public:
   // Sets default values for this actor's properties
   ATiersBuilding();
 
+  // Called every frame
+  virtual void Tick(float DeltaTime) override;
+
+  UFUNCTION(BlueprintCallable)
+  void SetSelected(bool NewIsSelected);
+
 protected:
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
 
-public:  
-  // Called every frame
-  virtual void Tick(float DeltaTime) override;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Runtime")
+  bool IsSelected = false;
 
 private:
   UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
@@ -32,4 +37,7 @@ private:
 
   UPROPERTY(EditDefaultsOnly)
   UStaticMeshComponent* Mesh;
+
+  UPROPERTY(EditDefaultsOnly)
+  UStaticMeshComponent* SelectorMesh;
 };
