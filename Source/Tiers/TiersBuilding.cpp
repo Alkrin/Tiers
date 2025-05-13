@@ -23,6 +23,9 @@ ATiersBuilding::ATiersBuilding()
 
   Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
   Mesh->SetupAttachment(RootComponent);
+
+  SelectorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SelectorMesh"));
+  SelectorMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -30,6 +33,7 @@ void ATiersBuilding::BeginPlay()
 {
   Super::BeginPlay();
   
+  SelectorMesh->SetVisibility(false);
 }
 
 // Called every frame
@@ -39,3 +43,8 @@ void ATiersBuilding::Tick(float DeltaTime)
 
 }
 
+void ATiersBuilding::SetSelected(bool NewIsSelected)
+{
+  IsSelected = NewIsSelected;
+  SelectorMesh->SetVisibility(IsSelected);
+}
