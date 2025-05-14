@@ -21,12 +21,18 @@ public:
   UFUNCTION(BlueprintCallable)
   void SetSelected(bool NewIsSelected);
 
+  UFUNCTION(BlueprintCallable)
+  void SetTeamIndex(int32 NewTeamIndex) { TeamIndex = NewTeamIndex; };
+
 protected:
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
 
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Runtime")
   bool IsSelected = false;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Runtime")
+  int32 TeamIndex = 0;
 
 private:
   UPROPERTY(EditDefaultsOnly)
