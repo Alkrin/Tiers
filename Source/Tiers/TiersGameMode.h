@@ -9,6 +9,53 @@
 class ATiersBuilding;
 class ATiersRobotCharacter;
 
+USTRUCT(BlueprintType)
+struct FSpawnDef_Building
+{
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  TSubclassOf<ATiersBuilding> BuildingBlueprint;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  FVector2D PositionOffset;
+};
+
+USTRUCT(BlueprintType)
+struct FSpawnDef_Robot
+{
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  TSubclassOf<ATiersRobotCharacter> RobotBlueprint;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  FVector2D PositionOffset;
+};
+
+USTRUCT(BlueprintType)
+struct FSpawnDef_Team
+{
+  GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  FVector2D SpawnCenter;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  FRotator SpawnDirection;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  FSpawnDef_Building HQ;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  TArray<FSpawnDef_Building> Buildings;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  TArray<FSpawnDef_Robot> Robots;
+};
+
 /**
  * 
  */
@@ -21,12 +68,18 @@ public:
   int32 GetMapWidth() const { return MapWidth; }
   int32 GetMapHeight() const { return MapHeight; }
 
+  UFUNCTION(BlueprintCallable)
+  void PrepareBoard(AActor* BoardActor);
+
 protected:
   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
   int32 MapWidth = 50;
 
   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
   int32 MapHeight = 50;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly)
+  TArray<FSpawnDef_Team> TeamSpawners;
 
   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Buildings")
   TSubclassOf<ATiersBuilding> HQ;
@@ -42,4 +95,10 @@ protected:
 
   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Units")
   TSubclassOf<ATiersRobotCharacter> StarterRobot;
+
+private:
+  void ResizeBoard(AActor* BoardActor);
+  void SetUpTeams();
+  void SpawnBuilding(const int32 TeamIndex, const FSpawnDef_Team& TeamDef, const FSpawnDef_Building& SpawnDef);
+  void SpawnRobot(const int32 TeamIndex, const FSpawnDef_Team& TeamDef, const FSpawnDef_Robot& SpawnDef);
 };
