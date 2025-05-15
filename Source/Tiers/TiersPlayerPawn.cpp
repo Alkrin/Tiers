@@ -187,7 +187,7 @@ void ATiersPlayerPawn::UpdateDragSelection()
 
 void ATiersPlayerPawn::SetUpForTeam(const FSpawnDef_Team& TeamDef)
 {
-  // TODO: Set up camera position and controls.
+  // Set up camera position and controls.
   // Desired initial position is focused on the team's HQ, but if we can't find it,
   // we'll just start at the center of the map.
   FVector StartPos(0, 0, InitialZoomHeight);
