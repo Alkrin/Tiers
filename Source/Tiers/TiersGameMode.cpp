@@ -5,6 +5,9 @@
 
 #include "TiersBuilding.h"
 #include "TiersRobotCharacter.h"
+#include "TiersPlayerController.h"
+#include "TiersPlayerPawn.h"
+#include "Kismet/GameplayStatics.h"
 
 void ATiersGameMode::PrepareBoard(AActor* BoardActor)
 {
@@ -15,8 +18,6 @@ void ATiersGameMode::PrepareBoard(AActor* BoardActor)
 
   ResizeBoard(BoardActor);
   SetUpTeams();
-
-  // TODO: Set up player camera!
 }
 
 void ATiersGameMode::ResizeBoard(AActor* BoardActor)
@@ -26,6 +27,21 @@ void ATiersGameMode::ResizeBoard(AActor* BoardActor)
 
 void ATiersGameMode::SetUpTeams()
 {
+  // First, we need to assign the player(s) and AI(s) to teams.
+  // TODO: Spawn OverlordAIControllers for non-human teams.
+  // TODO: Assign to more than just the local player!
+  ATiersPlayerController* PlayerController = Cast<ATiersPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+  if (PlayerController)
+  {
+    const int32 TeamIndex = FMath::RandRange(0, TeamSpawners.Num() - 1);
+    PlayerController->SetTeamIndex(TeamIndex);
+    if (ATiersPlayerPawn* PlayerPawn = Cast<ATiersPlayerPawn>(PlayerController->GetPawn()))
+    {
+      PlayerPawn->SetUpForTeam(TeamSpawners[TeamIndex]);
+    }
+  }
+
+  // Then we spawn the buildings and robots for all teams.
   for (int32 i = 0; i < TeamSpawners.Num(); ++i)
   {
     FSpawnDef_Team& TeamDef = TeamSpawners[i];

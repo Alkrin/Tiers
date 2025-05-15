@@ -10,6 +10,7 @@ class UInputAction;
 class UInputComponent;
 class UInputMappingContext;
 struct FInputActionValue;
+struct FSpawnDef_Team;
 
 UCLASS()
 class TIERS_API ATiersPlayerPawn : public APawn
@@ -19,6 +20,8 @@ class TIERS_API ATiersPlayerPawn : public APawn
 public:
   // Sets default values for this pawn's properties
   ATiersPlayerPawn();
+
+  void SetUpForTeam(const FSpawnDef_Team& TeamDef);
 
 protected:
   // Called when the game starts or when spawned
@@ -67,4 +70,6 @@ private:
 
   bool IsSelecting = false;
   void UpdateDragSelection();
+
+  void ApplyRequestedMove(FVector Delta);
 };
