@@ -8,6 +8,7 @@
 #include "InputActionValue.h"
 #include "TiersGameMode.h"
 #include "TiersPlayerController.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ATiersPlayerPawn::ATiersPlayerPawn()
@@ -22,18 +23,6 @@ void ATiersPlayerPawn::BeginPlay()
 {
   Super::BeginPlay();
 
-  // Desired initial position is focused on the bottom-center of the map, but if we can't find it,
-  // we'll just start at the center-center.
-  FVector StartPos(0, 0, InitialZoomHeight);
-  if (ATiersGameMode* GameMode = Cast<ATiersGameMode>(GetWorld()->GetAuthGameMode()))
-  {
-    // Every map tile is 100x100cm.  To get to the bottom edge, we only need half of that (50).
-    // The -14 puts us slightly inside the map bounds (assuming a non-degenerate map size).
-    StartPos.Y = -(GameMode->GetMapHeight() - 14) * 50;
-    // After that, we have to account for the initial altitude and 30deg camera angle.
-    StartPos.Y -= StartPos.Z / FMath::Tan(PI/6);
-  }
-  SetActorLocation(StartPos);
 }
 
 // Called every frame
@@ -108,42 +97,28 @@ void ATiersPlayerPawn::HandlePan(float DeltaTime)
 
       if (MouseX < PanAreaSize)
       {
-        // Pan Left (positive X direction)
-        FVector Location = GetActorLocation();
-        const float MaxPanX = GameMode->GetMapWidth() * 50;
-        Location.X = FMath::Min(MaxPanX, Location.X + PanSpeed * DeltaTime);
-        SetActorLocation(Location);
+        // Pan Left
+        FVector RequestedMove = -GetActorRightVector() * PanSpeed * DeltaTime;
+        ApplyRequestedMove(RequestedMove);
       }
       else if (MouseX >= ViewportWidth - PanAreaSize)
       {
-        // Pan Right (negative X direction)
-        FVector Location = GetActorLocation();
-        const float MinPanX = GameMode->GetMapWidth() * -50;
-        Location.X = FMath::Max(MinPanX, Location.X - PanSpeed * DeltaTime);
-        SetActorLocation(Location);
+        // Pan Right
+        FVector RequestedMove = GetActorRightVector() * PanSpeed * DeltaTime;
+        ApplyRequestedMove(RequestedMove);
       }
 
       if (MouseY < PanAreaSize)
       {
-        // Pan Up (positive Y direction)
-        FVector Location = GetActorLocation();
-
-        const float EdgeOffset = Location.Z / FMath::Tan(PI/6);
-        const float MaxPanY = GameMode->GetMapHeight() * 50 - EdgeOffset;
-
-        Location.Y = FMath::Min(MaxPanY, Location.Y + PanSpeed * DeltaTime);
-        SetActorLocation(Location);
+        // Pan Forward
+        FVector RequestedMove = GetActorForwardVector() * PanSpeed * DeltaTime;
+        ApplyRequestedMove(RequestedMove);
       }
       else if (MouseY >= ViewportHeight - PanAreaSize)
       {
-        // Pan Down (negative Y direction)
-        FVector Location = GetActorLocation();
-        
-        const float EdgeOffset = Location.Z / FMath::Tan(PI/6);
-        const float MinPanY = GameMode->GetMapHeight() * -50 - EdgeOffset;
-        
-        Location.Y = FMath::Max(MinPanY, Location.Y - PanSpeed * DeltaTime);
-        SetActorLocation(Location);
+        // Pan Backward
+        FVector RequestedMove = -GetActorForwardVector() * PanSpeed * DeltaTime;
+        ApplyRequestedMove(RequestedMove);
       }
     }
   }
@@ -161,8 +136,9 @@ void ATiersPlayerPawn::HandleZoom(const FInputActionValue& Value)
     const float DeltaZ = NewZ - Location.Z;
     Location.Z = NewZ;
     // Move forward along the 30deg diagonal so we maintain focal point.
-    const float DeltaY = DeltaZ / FMath::Tan(PI/6);
-    Location.Y -= DeltaY;
+    const float Magnitude = DeltaZ / FMath::Tan(PI/6);
+    FVector DeltaForward = GetActorForwardVector() * Magnitude;
+    Location -= DeltaForward;
 
     SetActorLocation(Location);
   }
@@ -173,8 +149,9 @@ void ATiersPlayerPawn::HandleZoom(const FInputActionValue& Value)
     const float DeltaZ = NewZ - Location.Z;
     Location.Z = NewZ;
     // Move backward along the 30deg diagonal so we maintain focal point.
-    const float DeltaY = DeltaZ / FMath::Tan(PI/6);
-    Location.Y -= DeltaY;
+    const float Magnitude = DeltaZ / FMath::Tan(PI/6);
+    FVector DeltaBackward = -GetActorForwardVector() * Magnitude;
+    Location += DeltaBackward;
 
     SetActorLocation(Location);
   }
@@ -206,4 +183,55 @@ void ATiersPlayerPawn::UpdateDragSelection()
       PlayerController->UpdateDragSelection();
     }
   }
+}
+
+void ATiersPlayerPawn::SetUpForTeam(const FSpawnDef_Team& TeamDef)
+{
+  // TODO: Set up camera position and controls.
+  // Desired initial position is focused on the team's HQ, but if we can't find it,
+  // we'll just start at the center of the map.
+  FVector StartPos(0, 0, InitialZoomHeight);
+  if (ATiersGameMode* GameMode = Cast<ATiersGameMode>(GetWorld()->GetAuthGameMode()))
+  {
+    StartPos.X = (TeamDef.SpawnCenter.X + TeamDef.HQ.PositionOffset.X) * 100.f;
+    StartPos.Y = (TeamDef.SpawnCenter.Y + TeamDef.HQ.PositionOffset.Y) * 100.f;
+
+    // Now, move the camera "back" according to the 30deg camera angle and the spawn direction.
+    FVector CameraOffset(0, -StartPos.Z / FMath::Tan(PI/6), 0);
+    CameraOffset = TeamDef.SpawnDirection.RotateVector(CameraOffset);
+    StartPos += CameraOffset;
+
+    SetActorRotation(UKismetMathLibrary::ComposeRotators(GetActorRotation(), TeamDef.SpawnDirection));
+  }
+  SetActorLocation(StartPos);
+}
+
+void ATiersPlayerPawn::ApplyRequestedMove(FVector Delta)
+{
+  ATiersGameMode* GameMode = Cast<ATiersGameMode>(GetWorld()->GetAuthGameMode());
+  if (!GameMode)
+  {
+    return;
+  }
+  const float MapXMax = GameMode->GetMapWidth() / 2.f * 100.f;
+  const float MapXMin = -MapXMax;
+  const float MapYMax = GameMode->GetMapHeight() / 2.f * 100.f;
+  const float MapYMin = -MapYMax;
+
+  FVector NewLocation = GetActorLocation() + Delta;
+  // Constrain all moves so the focal point remains within the map boundaries.
+  const float EdgeOffset = NewLocation.Z / FMath::Tan(PI/6);
+  FVector NewFocalPoint = FVector(NewLocation.X, NewLocation.Y, 0) + GetActorForwardVector() * EdgeOffset;
+
+  const float XOverflow = FMath::Max(0.f, NewFocalPoint.X - MapXMax);
+  NewLocation.X -= XOverflow;
+  const float XUnderflow = FMath::Min(0.f, NewFocalPoint.X - MapXMin);
+  NewLocation.X -= XUnderflow;
+
+  const float YOverflow = FMath::Max(0.f, NewFocalPoint.Y - MapYMax);
+  NewLocation.Y -= YOverflow;
+  const float YUnderflow = FMath::Min(0.f, NewFocalPoint.Y - MapYMin);
+  NewLocation.Y -= YUnderflow;
+
+  SetActorLocation(NewLocation);
 }

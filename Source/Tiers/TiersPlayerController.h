@@ -20,6 +20,9 @@ public:
   void BeginDragSelect();
   void UpdateDragSelection();
   void EndDragSelect();
+
+  UFUNCTION(BlueprintCallable)
+  void SetTeamIndex(int32 NewTeamIndex) { TeamIndex = NewTeamIndex; };
   
 protected:
   // Called when the game starts or when spawned
@@ -27,6 +30,9 @@ protected:
 
   UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Runtime")
   TArray<AActor*> SelectedEntities;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Runtime")
+  int32 TeamIndex = 0;
 
 private:
   UPROPERTY(EditDefaultsOnly, Category="UI")
