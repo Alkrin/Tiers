@@ -30,7 +30,7 @@ void ATiersRobotCharacter::Tick(float DeltaTime)
 
 }
 
-void ATiersRobotCharacter::SetSelected(bool NewIsSelected)
+void ATiersRobotCharacter::SetIsSelected_Implementation(bool NewIsSelected)
 {
   IsSelected = NewIsSelected;
   SelectorMesh->SetVisibility(IsSelected);

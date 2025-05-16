@@ -71,7 +71,7 @@ void ATiersGameMode::SpawnBuilding(const int32 TeamIndex, const FSpawnDef_Team& 
       SpawnDef.BuildingBlueprint,
       Location,
       TeamDef.SpawnDirection);
-    NewBuilding->SetTeamIndex(TeamIndex);
+    ITiersEntity::Execute_SetTeamIndex(NewBuilding, TeamIndex);
   }
   else
   {
@@ -89,7 +89,7 @@ void ATiersGameMode::SpawnRobot(const int32 TeamIndex, const FSpawnDef_Team& Tea
       SpawnDef.RobotBlueprint,
       Location,
       TeamDef.SpawnDirection);
-   NewRobot->SetTeamIndex(TeamIndex);
+   ITiersEntity::Execute_SetTeamIndex(NewRobot, TeamIndex);
   }
   else
   {

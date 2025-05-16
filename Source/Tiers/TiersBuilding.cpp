@@ -43,7 +43,7 @@ void ATiersBuilding::Tick(float DeltaTime)
 
 }
 
-void ATiersBuilding::SetSelected(bool NewIsSelected)
+void ATiersBuilding::SetIsSelected_Implementation(bool NewIsSelected)
 {
   IsSelected = NewIsSelected;
   SelectorMesh->SetVisibility(IsSelected);
