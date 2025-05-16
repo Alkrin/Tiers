@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TiersEntityInterface.h"
 #include "TiersRobotCharacter.generated.h"
 
 UCLASS()
-class TIERS_API ATiersRobotCharacter : public ACharacter
+class TIERS_API ATiersRobotCharacter : public ACharacter, public ITiersEntity
 {
   GENERATED_BODY()
 
@@ -18,11 +19,12 @@ public:
   // Called every frame
   virtual void Tick(float DeltaTime) override;
 
-  UFUNCTION(BlueprintCallable)
-  void SetSelected(bool NewIsSelected);
+  // ITiersEntity
+  void SetIsSelected_Implementation(bool NewIsSelected) override;
+  bool GetIsSelected_Implementation() const override { return IsSelected; }
 
-  UFUNCTION(BlueprintCallable)
-  void SetTeamIndex(int32 NewTeamIndex) { TeamIndex = NewTeamIndex; };
+  void SetTeamIndex_Implementation(int32 NewTeamIndex) override { TeamIndex = NewTeamIndex; };
+  int32 GetTeamIndex_Implementation() const override { return TeamIndex; }
 
 protected:
   // Called when the game starts or when spawned

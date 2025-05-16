@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TiersPlayerController.generated.h"
 
+class ITiersEntity;
 class UDragSelectorWidget;
 
 /**
@@ -23,6 +24,10 @@ public:
 
   UFUNCTION(BlueprintCallable)
   void SetTeamIndex(int32 NewTeamIndex) { TeamIndex = NewTeamIndex; };
+
+  int32 GetTeamIndex() const { return TeamIndex; }
+
+  TArray<AActor*>& GetSelectedEntities() { return SelectedEntities; }
   
 protected:
   // Called when the game starts or when spawned
