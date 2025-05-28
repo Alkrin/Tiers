@@ -50,7 +50,7 @@ void UMenuManagerSubsystem::PopMenuWidget(bool ShouldAnimate)
 
     // Animations take 1.5 seconds.  After that, fully remove the ExitingMenu.
     FTimerHandle ExitTimer;
-    GetWorld()->GetTimerManager().SetTimer(ExitTimer, ExitingMenu, &UMenuWrapperWidget::RemoveFromParent, 1.5f);
+    GetWorld()->GetTimerManager().SetTimer(ExitTimer, ExitingMenu, &UMenuWrapperWidget::RemoveFromParent, ShouldAnimate ? 1.5f : 0.f);
     
 
     // If there is a menu under this one, animate it back in.
@@ -65,16 +65,15 @@ void UMenuManagerSubsystem::PopMenuWidgetWithTransition(EMenuTransitionEnum Tran
 {
   if (MenuStack.Num() > 0)
   {
-    // TODO: Remove the menu from the stack, change its transition to the passed override, then run the exit animation.
+    MenuStack.Last()->SetTransition(Transition);
+    PopMenuWidget(true);
   }
 }
 
 void UMenuManagerSubsystem::ClearAllMenus(bool ShouldAnimate)
 {
-  if (ShouldAnimate)
+  while (MenuStack.Num() > 0)
   {
-    // TODO: Run exit animations.
+    PopMenuWidget(ShouldAnimate);
   }
-
-  // TODO:
 }
