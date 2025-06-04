@@ -109,7 +109,7 @@ void UFlipbookImageWidget::ReleaseSlateResources(const bool bReleaseChildren)
 
 void UFlipbookImageWidget::Tick(const float DeltaTime)
 {
-	if (FrameCounter == GFrameCounter || !Image.IsValid())
+	if (!Flipbook || FrameCounter == GFrameCounter || !Image.IsValid() || !bShouldRun)
 	{
 		return;
 	}
@@ -117,9 +117,13 @@ void UFlipbookImageWidget::Tick(const float DeltaTime)
 	auto Frames = 0.0;
 
 	Elapsed += DeltaTime;
-	Elapsed = Threshold * FMath::Modf(Elapsed / Threshold, &Frames);
-	CurrentFrame += Frames;
-	CurrentFrame %= TotalFrames;
+  double Duration = Flipbook->GetTotalDuration();
+  if (Elapsed > Duration)
+  {
+    Elapsed -= Duration;
+  }
+
+  CurrentFrame = Flipbook->GetKeyFrameIndexAtTime(Elapsed, true);
 
 	if (CurrentFrame != LastFrame)
 	{

@@ -5,12 +5,26 @@
 
 #include "MenuWrapperWidget.h"
 #include "TimerManager.h"
+#include "InfoDialogInterface.h"
 
-void UMenuManagerSubsystem::SetMenuWrapperClass(TSubclassOf<UUserWidget> WidgetClass)
+void UMenuManagerSubsystem::ConnectBlueprints(
+  TSubclassOf<UUserWidget> aMenuWrapperClass,
+  TSubclassOf<UUserWidget> aDialogWrapperClass,
+  TSubclassOf<UUserWidget> aInfoDialogClass)
 {
-  if (IsValid(WidgetClass))
+  if (IsValid(aMenuWrapperClass))
   {
-    MenuWrapperClass = WidgetClass;
+    MenuWrapperClass = aMenuWrapperClass;
+  }
+
+  if (IsValid(aDialogWrapperClass))
+  {
+    DialogWrapperClass = aDialogWrapperClass;
+  }
+
+  if (IsValid(aInfoDialogClass))
+  {
+    InfoDialogClass = aInfoDialogClass;
   }
 }
 
@@ -29,7 +43,7 @@ void UMenuManagerSubsystem::PushMenuWidget(TSubclassOf<UUserWidget> MenuClass, E
     if (IsValid(Wrapper))
     {
       // Add the new menu to the stack, add it to the viewport, and run its entrance animation.
-      Wrapper->SetContentClass(MenuClass);
+      Wrapper->GenerateContent(MenuClass);
       Wrapper->SetTransition(Transition);
       MenuStack.Push(Wrapper);
       Wrapper->AddToViewport();
@@ -73,6 +87,71 @@ void UMenuManagerSubsystem::PopMenuWidgetWithTransition(EMenuTransitionEnum Tran
 void UMenuManagerSubsystem::ClearAllMenus(bool ShouldAnimate)
 {
   while (MenuStack.Num() > 0)
+  {
+    PopMenuWidget(ShouldAnimate);
+  }
+}
+
+
+void UMenuManagerSubsystem::PushDialogWidget(TSubclassOf<UUserWidget> DialogClass)
+{
+  if (IsValid(DialogClass))
+  {
+    UMenuWrapperWidget* Wrapper = Cast<UMenuWrapperWidget>(CreateWidget(GetWorld(), DialogWrapperClass));
+    if (IsValid(Wrapper))
+    {
+      // Add the new dialog to the stack, add it to the viewport, and run its entrance animation.
+      Wrapper->GenerateContent(DialogClass);
+      Wrapper->SetTransition(EMenuTransitionEnum::Dialog);
+      DialogStack.Push(Wrapper);
+      Wrapper->AddToViewport();
+      Wrapper->PerformTransitionAnimation(true);
+    }
+  }
+}
+
+void UMenuManagerSubsystem::PushInfoDialog(const FText Title, const FText Message, bool bIsError)
+{
+  if (IsValid(InfoDialogClass))
+  {
+    UMenuWrapperWidget* Wrapper = Cast<UMenuWrapperWidget>(CreateWidget(GetWorld(), DialogWrapperClass));
+    if (IsValid(Wrapper))
+    {
+      // Add the new dialog to the stack, add it to the viewport, and run its entrance animation.
+      UUserWidget* Content = Wrapper->GenerateContent(InfoDialogClass);
+      if (Content->Implements<UInfoDialog>())
+      {
+        IInfoDialog::Execute_SetDisplayData(Content, bIsError, Title, Message);
+        Wrapper->SetTransition(EMenuTransitionEnum::Dialog);
+        DialogStack.Push(Wrapper);
+        Wrapper->AddToViewport();
+        Wrapper->PerformTransitionAnimation(true);
+      } else {
+        UE_LOG(LogTemp, Error, TEXT("Invalid InfoDialogClass registered with MenuManagerSubsystem.  Does not implement the UInfoDialog interface."));
+      }
+    }
+  }
+}
+
+void UMenuManagerSubsystem::PopDialogWidget(bool ShouldAnimate)
+{
+  if (DialogStack.Num() > 0)
+  {
+    UMenuWrapperWidget* ExitingDialog = DialogStack.Pop();
+    if (ShouldAnimate)
+    {
+      ExitingDialog->PerformTransitionAnimation(false);
+    }
+
+    // Animation takes 0.5 seconds.  After that, fully remove the ExitingDialog.
+    FTimerHandle ExitTimer;
+    GetWorld()->GetTimerManager().SetTimer(ExitTimer, ExitingDialog, &UMenuWrapperWidget::RemoveFromParent, ShouldAnimate ? 0.5f : 0.f);
+  }
+}
+
+void UMenuManagerSubsystem::ClearAllDialogs(bool ShouldAnimate)
+{
+  while (DialogStack.Num() > 0)
   {
     PopMenuWidget(ShouldAnimate);
   }

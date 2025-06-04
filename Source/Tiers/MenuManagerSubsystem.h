@@ -19,7 +19,10 @@ class TIERS_API UMenuManagerSubsystem : public ULocalPlayerSubsystem
 
 public:
   UFUNCTION(BlueprintCallable)
-  void SetMenuWrapperClass(TSubclassOf<UUserWidget> WidgetClass);
+  void ConnectBlueprints(
+    TSubclassOf<UUserWidget> MenuWrapperClass,
+    TSubclassOf<UUserWidget> DialogWrapperClass,
+    TSubclassOf<UUserWidget> InfoDialogClass);
 
   UFUNCTION(BlueprintCallable)
   void PushMenuWidget(TSubclassOf<UUserWidget> MenuClass, EMenuTransitionEnum Transition = EMenuTransitionEnum::None);
@@ -33,12 +36,33 @@ public:
   UFUNCTION(BlueprintCallable)
   void ClearAllMenus(bool ShouldAnimate);
 
+  UFUNCTION(BlueprintCallable)
+  void PushDialogWidget(TSubclassOf<UUserWidget> DialogClass);
+
+  UFUNCTION(BlueprintCallable)
+  void PushInfoDialog(const FText Title, const FText Message, bool bIsError = false);
+
+  UFUNCTION(BlueprintCallable)
+  void PopDialogWidget(bool ShouldAnimate);
+
+  UFUNCTION(BlueprintCallable)
+  void ClearAllDialogs(bool ShouldAnimate);
+
 protected:
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   TSubclassOf<UUserWidget> MenuWrapperClass;
 
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  TSubclassOf<UUserWidget> DialogWrapperClass;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  TSubclassOf<UUserWidget> InfoDialogClass;
+
 private:
   UPROPERTY()
   TArray<UMenuWrapperWidget*> MenuStack;
+
+  UPROPERTY()
+  TArray<UMenuWrapperWidget*> DialogStack;
 	
 };

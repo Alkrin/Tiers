@@ -87,6 +87,9 @@ private:
 		Category=Appearance, meta=(AllowPrivateAccess=true))
 	UPaperFlipbook* Flipbook;
 
+  UPROPERTY(EditAnywhere, BlueprintReadWrite,	meta=(AllowPrivateAccess=true))
+	bool bShouldRun=true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Getter=GetFlipForRightToLeftFlowDirection,
 		Setter=SetFlipForRightToLeftFlowDirection, Category=Localization, meta=(AllowPrivateAccess=true))
 	bool bFlipForRightToLeftFlowDirection;
