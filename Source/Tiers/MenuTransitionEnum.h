@@ -12,6 +12,7 @@ UENUM(BlueprintType)
 enum class EMenuTransitionEnum : uint8
 {
   None UMETA(DisplayName = "None"),
+  Dialog UMETA(DisplayName = "Dialog"),
   FadeAndScale UMETA(DisplayName = "Fade And Scale"),
   RotateAndSlide UMETA(DisplayName = "Rotate And Slide"),
 };

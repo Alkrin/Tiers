@@ -7,6 +7,8 @@
 #include "MenuTransitionEnum.h"
 #include "MenuWrapperWidget.generated.h"
 
+class UCanvasPanel;
+
 /**
  * 
  */
@@ -20,7 +22,7 @@ public:
   void PerformTransitionAnimation(bool IsForward);
 
   void SetTransition(EMenuTransitionEnum NewTransition) { Transition = NewTransition; };
-  void SetContentClass(TSubclassOf<UUserWidget> ContentClass);
+  UUserWidget* GenerateContent(TSubclassOf<UUserWidget> ContentClass);
 
 protected:
   UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))

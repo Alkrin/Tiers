@@ -3,9 +3,10 @@
 
 #include "MenuWrapperWidget.h"
 
+#include "Components/CanvasPanel.h"
 #include "Components/NamedSlot.h"
 
-void UMenuWrapperWidget::SetContentClass(TSubclassOf<UUserWidget> ContentClass)
+UUserWidget* UMenuWrapperWidget::GenerateContent(TSubclassOf<UUserWidget> ContentClass)
 {
   if (IsValid(ContentClass))
   {
@@ -15,6 +16,10 @@ void UMenuWrapperWidget::SetContentClass(TSubclassOf<UUserWidget> ContentClass)
     {
       ContentSlot->ClearChildren();
       ContentSlot->AddChild(Content);
+
+      return Content;
     }
   }
+
+  return nullptr;
 }
