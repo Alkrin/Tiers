@@ -9,6 +9,11 @@
 #include "TiersPlayerPawn.h"
 #include "Kismet/GameplayStatics.h"
 
+ATiersGameMode::ATiersGameMode(): AGameMode() {
+  // We will wait for the hosting player to manually start the game.
+  //bDelayedStart = true;
+}
+
 void ATiersGameMode::PrepareBoard(AActor* BoardActor)
 {
   if (!BoardActor)
@@ -95,4 +100,12 @@ void ATiersGameMode::SpawnRobot(const int32 TeamIndex, const FSpawnDef_Team& Tea
   {
     UE_LOG(LogTemp, Error, TEXT("Missing BuildingBlueprint!"));
   }
+}
+
+void ATiersGameMode::PostLogin(APlayerController* NewPlayer)
+{
+  Super::PostLogin(NewPlayer);
+
+  // TODO: Track this player as present?  Update their PlayerState?  Update GameState?
+  UE_LOG(LogTemp, Warning, TEXT("PostLogin() for %s"), *NewPlayer->GetName());
 }
