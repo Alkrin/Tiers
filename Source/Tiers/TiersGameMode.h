@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "TiersGameMode.generated.h"
 
 class ATiersBuilding;
@@ -60,11 +60,13 @@ struct FSpawnDef_Team
  * 
  */
 UCLASS()
-class TIERS_API ATiersGameMode : public AGameModeBase
+class TIERS_API ATiersGameMode : public AGameMode
 {
   GENERATED_BODY()
   
 public:
+  ATiersGameMode();
+
   int32 GetMapWidth() const { return MapWidth; }
   int32 GetMapHeight() const { return MapHeight; }
 
@@ -95,6 +97,8 @@ protected:
 
   UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Units")
   TSubclassOf<ATiersRobotCharacter> StarterRobot;
+
+  virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
   void ResizeBoard(AActor* BoardActor);

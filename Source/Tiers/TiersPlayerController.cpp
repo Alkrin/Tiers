@@ -5,14 +5,27 @@
 
 #include "Blueprint/UserWidget.h"
 #include "DragSelectorWidget.h"
+#include "MenuManagerSubsystem.h"
 
 // Called when the game starts or when spawned
 void ATiersPlayerController::BeginPlay()
 {
   Super::BeginPlay();
 
+  // Whenever a player joins a match, they start in the "lobby" and sit there until the Host starts the actual game.
+  InitializeLobbyUI();
+
   // Add the DragSelector first, so it renders under the rest of the HUD.
-  InitializeDragSelectorUI();
+  //InitializeDragSelectorUI();
+  UE_LOG(LogTemp, Warning, TEXT("ATiersPlayerController::BeginPlay()"));
+}
+
+void ATiersPlayerController::InitializeLobbyUI()
+{
+  if (UMenuManagerSubsystem* MenuManager = GetLocalPlayer()->GetSubsystem<UMenuManagerSubsystem>())
+  {
+    MenuManager->PushMenuWidget(LobbyWidgetClass, EMenuTransitionEnum::FadeAndScale);
+  }
 }
 
 void ATiersPlayerController::InitializeDragSelectorUI()

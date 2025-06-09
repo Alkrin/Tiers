@@ -44,5 +44,10 @@ private:
   TSubclassOf<UDragSelectorWidget> DragSelectorWidgetClass;
   UDragSelectorWidget* DragSelectorWidget;
 
+  UPROPERTY(EditDefaultsOnly, Category="UI")
+  TSubclassOf<UUserWidget> LobbyWidgetClass;
+  UUserWidget* LobbyWidget;
+
+  void InitializeLobbyUI();
   void InitializeDragSelectorUI();
 };
