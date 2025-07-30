@@ -8,6 +8,7 @@
 
 class ATiersBuilding;
 class ATiersRobotCharacter;
+class ATiersPlayerController;
 
 USTRUCT(BlueprintType)
 struct FSpawnDef_Building
@@ -73,11 +74,16 @@ public:
   UFUNCTION(BlueprintCallable)
   void PrepareBoard(AActor* BoardActor);
 
+  virtual void InitGameState() override;
+
 protected:
-  UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+  UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+  int32 MaxPlayers = 2;
+
+  UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
   int32 MapWidth = 50;
 
-  UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+  UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
   int32 MapHeight = 50;
 
   UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -99,6 +105,7 @@ protected:
   TSubclassOf<ATiersRobotCharacter> StarterRobot;
 
   virtual void PostLogin(APlayerController* NewPlayer) override;
+  virtual void Logout(AController* Exiting) override;
 
 private:
   void ResizeBoard(AActor* BoardActor);

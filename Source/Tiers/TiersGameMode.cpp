@@ -7,11 +7,23 @@
 #include "TiersRobotCharacter.h"
 #include "TiersPlayerController.h"
 #include "TiersPlayerPawn.h"
+#include "TiersGameInstance.h"
+#include "TiersGameState.h"
+#include "TiersPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
 ATiersGameMode::ATiersGameMode(): AGameMode() {
   // We will wait for the hosting player to manually start the game.
   //bDelayedStart = true;
+}
+
+void ATiersGameMode::InitGameState()
+{
+  Super::InitGameState();
+
+  UTiersGameInstance* TypedGameInstance = GetGameInstance<UTiersGameInstance>();
+  ATiersGameState* TypedGameState = GetGameState<ATiersGameState>();
+  TypedGameState->Initialize(MaxPlayers, TypedGameInstance->NumHumansForNextMatch);
 }
 
 void ATiersGameMode::PrepareBoard(AActor* BoardActor)
@@ -47,6 +59,8 @@ void ATiersGameMode::SetUpTeams()
   }
 
   // Then we spawn the buildings and robots for all teams.
+  // Note that it is possible to have more spawn sets than players.
+  // The first spawn sets are assigned to players at runtime.  Any excess spawn sets are neutral.
   for (int32 i = 0; i < TeamSpawners.Num(); ++i)
   {
     FSpawnDef_Team& TeamDef = TeamSpawners[i];
@@ -98,7 +112,7 @@ void ATiersGameMode::SpawnRobot(const int32 TeamIndex, const FSpawnDef_Team& Tea
   }
   else
   {
-    UE_LOG(LogTemp, Error, TEXT("Missing BuildingBlueprint!"));
+    UE_LOG(LogTemp, Error, TEXT("Missing RobotBlueprint!"));
   }
 }
 
@@ -106,6 +120,36 @@ void ATiersGameMode::PostLogin(APlayerController* NewPlayer)
 {
   Super::PostLogin(NewPlayer);
 
-  // TODO: Track this player as present?  Update their PlayerState?  Update GameState?
-  UE_LOG(LogTemp, Warning, TEXT("PostLogin() for %s"), *NewPlayer->GetName());
+  // We want to forward this update event to the GameState so that each client can update its UI to match.
+  // (GameMode only lives on the server)
+  
+  if (ATiersPlayerController* TypedNewPlayer = Cast<ATiersPlayerController>(NewPlayer))
+  {
+    if (ATiersGameState* TypedGameState = Cast<ATiersGameState>(GameState))
+    {
+      if (ATiersPlayerState* PlayerState = TypedNewPlayer->GetPlayerState<ATiersPlayerState>())
+      {
+        TypedGameState->HandlePlayerJoined(PlayerState->GetPlayerId());
+      }
+    };
+  }
+}
+
+void ATiersGameMode::Logout(AController* Exiting)
+{
+  Super::Logout(Exiting);
+
+  // We want to forward this update event to the GameState so that each client can update its UI to match.
+  // (GameMode only lives on the server)
+
+  if (ATiersPlayerController* TypedExiting = Cast<ATiersPlayerController>(Exiting))
+  {
+    if (ATiersGameState* TypedGameState = Cast<ATiersGameState>(GameState))
+    {
+      if (ATiersPlayerState* PlayerState = TypedExiting->GetPlayerState<ATiersPlayerState>())
+      {
+        TypedGameState->HandlePlayerLeft(PlayerState->GetPlayerId());
+      }
+    };
+  }
 }

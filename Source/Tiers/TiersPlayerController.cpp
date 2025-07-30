@@ -12,17 +12,32 @@ void ATiersPlayerController::BeginPlay()
 {
   Super::BeginPlay();
 
-  // Whenever a player joins a match, they start in the "lobby" and sit there until the Host starts the actual game.
-  InitializeLobbyUI();
+  if (IsLocalPlayerController())
+  {
+    // Whenever a player joins a match, they start in the "lobby" and sit there until the Host starts the actual game.
+    InitializeLobbyUI();
 
-  // Add the DragSelector first, so it renders under the rest of the HUD.
-  //InitializeDragSelectorUI();
-  UE_LOG(LogTemp, Warning, TEXT("ATiersPlayerController::BeginPlay()"));
+    // Add the DragSelector first, so it renders under the rest of the HUD.
+    //InitializeDragSelectorUI();
+  }
 }
 
-void ATiersPlayerController::InitializeLobbyUI()
+void ATiersPlayerController::InitializeLobbyUI(int32 RetriesRemaining)
 {
-  if (UMenuManagerSubsystem* MenuManager = GetLocalPlayer()->GetSubsystem<UMenuManagerSubsystem>())
+  ULocalPlayer* LocalPlayer = GetLocalPlayer();
+  if (!LocalPlayer) {
+    if (RetriesRemaining)
+    {
+      FTimerHandle RetryHandle;
+      FTimerDelegate RetryDelegate = FTimerDelegate::CreateUObject( this, &ATiersPlayerController::InitializeLobbyUI, RetriesRemaining - 1);
+      GetWorldTimerManager().SetTimer(RetryHandle, RetryDelegate, 0.5, false);
+    } 
+    else
+    {
+      UE_LOG(LogTemp, Fatal, TEXT("Failed to initialize LocalPlayer for %s"), *GetName());
+    }
+  } 
+  else if (UMenuManagerSubsystem* MenuManager = LocalPlayer->GetSubsystem<UMenuManagerSubsystem>())
   {
     MenuManager->PushMenuWidget(LobbyWidgetClass, EMenuTransitionEnum::FadeAndScale);
   }
