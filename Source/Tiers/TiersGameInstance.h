@@ -17,5 +17,9 @@ class TIERS_API UTiersGameInstance : public UGameInstance
 public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   FName PlayerDisplayName = "Player";
+
+  // A pass-through value that the host gives to GameState during initialization.
+  UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+  int32 NumHumansForNextMatch = 0;
 	
 };

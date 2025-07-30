@@ -48,6 +48,6 @@ private:
   TSubclassOf<UUserWidget> LobbyWidgetClass;
   UUserWidget* LobbyWidget;
 
-  void InitializeLobbyUI();
+  void InitializeLobbyUI(int32 RetriesRemaining = 10);
   void InitializeDragSelectorUI();
 };
